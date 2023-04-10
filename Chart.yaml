@@ -1,0 +1,39 @@
+annotations:
+  category: Analytics
+  artifacthub.io/images: |
+    - name: opensearch-dashboards
+      image: opensearchproject/opensearch-dashboards:2.6.0
+  artifacthub.io/license: MIT
+  artifacthub.io/recommendations: |
+    - url: https://artifacthub.io/packages/helm/captnbp/opensearch
+    - url: https://github.com/captnbp/opensearch-singlenode
+  artifacthub.io/changes: |
+    - kind: changed
+      description: Add extra K/V secrets in Opensearch keystore
+apiVersion: v2
+appVersion: 2.6.0
+dependencies:
+  - name: common
+    repository: https://charts.bitnami.com/bitnami
+    tags:
+      - bitnami-common
+    version: 1.x.x
+description: Opensearch Dashboards is an open source, browser based analytics and search dashboard for Opensearch. Opensearch Dashboards strives to be easy to get started with, while also being flexible and powerful.
+home: https://lab.frogg.it/captnbp/opensearch-dashboards
+icon: https://opensearch.org/assets/brand/PNG/Mark/opensearch_mark_default.png
+keywords:
+  - opensearch
+  - dashboards
+  - opensearch-dashboards
+  - analytics
+  - monitoring
+  - metrics
+  - logs
+maintainers:
+  - email: benoit.pourre@gmail.com
+    name: Benoît Pourre
+name: opensearch-dashboards
+sources:
+  - https://github.com/opensearch-project
+  - https://opensearch.org/
+version: 3.0.0

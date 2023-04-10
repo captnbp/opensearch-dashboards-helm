@@ -1,0 +1,75 @@
+{{- if and (not .Values.configurationCM) (and .Values.opensearch.hosts .Values.opensearch.port) }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "common.names.fullname" . }}-conf
+  labels: {{- include "common.labels.standard" . | nindent 4 }}
+data:
+  opensearch_dashboards.yml: |
+    server.host: "::"
+    server.port: {{ .Values.containerPorts.http }}
+
+    # This setting is for communications between OpenSearch Dashboards and the web browser.
+    {{- if .Values.tls.enabled }}
+    # Set to true for HTTPS, false for HTTP.
+    server.ssl.enabled: true
+    server.ssl.supportedProtocols: ["TLSv1.2"]
+    server.ssl.certificate: /usr/share/opensearch-dashboards/config/server-certs/tls.crt
+    server.ssl.key: /usr/share/opensearch-dashboards/config/server-certs/tls.key
+    #server.ssl.certificateAuthorities: []
+    {{- if .Values.tls.keyPassword }}
+    server.ssl.keyPassphrase: ${KEY_PASSPHRASE}
+    {{- end }}
+    {{- else }}
+    server.ssl.enabled: false
+    {{- end }}
+    {{- if .Values.configuration.server.basePath }}
+    server.basePath: {{ .Values.configuration.server.basePath | quote }}
+    {{- end }}
+    server.rewriteBasePath: {{ .Values.configuration.server.rewriteBasePath }}
+
+    opensearch.hosts: [{{ include "opensearch-dashboards.opensearch.url" . }}]
+    # Configure the OpenSearch Dashboards internal server user
+    opensearch.username: "${OPENSEARCH_USERNAME}"
+    opensearch.password: "${OPENSEARCH_PASSWORD}"
+
+    # This setting is for communications between OpenSearch and OpenSearch Dashboards. 
+    # Valid values are full, certificate, or none.
+    # We recommend full if you enable TLS, which enables hostname verification. certificate just checks the certificate, not the hostname, and none performs no checks (suitable for HTTP).
+    # Default is full.
+    opensearch.ssl.verificationMode: {{ .Values.opensearch.security.tls.verificationMode }}
+
+    {{- if and .Values.opensearch.security.tls.enabled (not (eq .Values.opensearch.security.tls.verificationMode "none" )) }}
+    # If opensearch.ssl.verificationMode is full or certificate, specify the full path to one or more CA certificates that comprise a trusted chain for your OpenSearch cluster. 
+    # For example, you might need to include a root CA and an intermediate CA if you used the intermediate CA to issue your admin, client, and node certificates.
+    opensearch.ssl.certificateAuthorities: [ "/usr/share/opensearch-dashboards/certs/ca.crt" ]
+    {{- end }}
+
+    # Whitelist basic headers and multi-tenancy header
+    #opensearch.requestHeadersWhitelist: ["Authorization", "security_tenant"]
+    opensearch.requestHeadersWhitelist: [ authorization,securitytenant ]
+
+    opensearch_security.multitenancy.enabled: true
+    opensearch_security.multitenancy.tenants.preferred: ["Private", "Global"]
+    {{- if or .Values.ingress.tls .Values.tls.enabled }}
+    opensearch_security.cookie.secure: "true"
+    {{- end }}
+    
+    {{- if .Values.openid.enabled }}
+    opensearch_security.auth.type: "openid"
+    opensearch_security.openid.connect_url: "{{.Values.openid.connect_url }}"
+    opensearch_security.openid.client_id: "{{.Values.openid.client_id }}"
+    opensearch_security.openid.client_secret: "{{.Values.openid.client_secret }}"
+    opensearch_security.openid.base_redirect_url: "https://{{ .Values.ingress.hostname }}/"
+    opensearch_security.openid.scope: "{{.Values.openid.scope }}"
+    {{- end }}
+
+    # OpenSearch Dashboards uses an index in OpenSearch to store saved searches, visualizations and
+    # dashboards. OpenSearch Dashboards creates a new index if the index doesn't already exist.
+    opensearchDashboards.index: ".opensearch_dashboards"
+
+    {{- if .Values.extraConfiguration }}
+    {{- tpl (toYaml .Values.extraConfiguration) $ | nindent 4 }}
+    {{- end }}
+
+{{- end }}

@@ -1,0 +1,570 @@
+## @section Global parameters
+## Global Docker image parameters
+## Please, note that this will override the image parameters, including dependencies, configured to use the global value
+## Current available global Docker image parameters: imageRegistry, imagePullSecrets and storageClass
+
+## @param global.imageRegistry Global Docker image registry
+## @param global.imagePullSecrets Global Docker registry secret names as an array
+##
+global:
+  imageRegistry: ""
+  ## E.g.
+  ## imagePullSecrets:
+  ##   - myRegistryKeySecretName
+  ##
+  imagePullSecrets: []
+
+## @section Common parameters
+
+## @param kubeVersion Force target Kubernetes version (using Helm capabilities if not set)
+##
+kubeVersion: ""
+## @param nameOverride String to partially override common.names.fullname template with a string (will prepend the release name)
+##
+nameOverride: ""
+## @param fullnameOverride String to fully override common.names.fullname template with a string
+##
+fullnameOverride: ""
+## @param commonAnnotations Annotations to add to all deployed objects
+##
+commonAnnotations: {}
+## @param commonLabels Labels to add to all deployed objects
+##
+commonLabels: {}
+## @param extraDeploy A list of extra kubernetes resources to be deployed
+##
+extraDeploy: []
+## @param clusterDomain Kubernetes cluster domain name
+##
+clusterDomain: cluster.local
+
+## Enable diagnostic mode in the deployment(s)/statefulset(s)
+##
+diagnosticMode:
+  ## @param diagnosticMode.enabled Enable diagnostic mode (all probes will be disabled and the command will be overridden)
+  ##
+  enabled: false
+  ## @param diagnosticMode.command Command to override all containers in the the deployment(s)/statefulset(s)
+  ##
+  command:
+    - sleep
+  ## @param diagnosticMode.args Args to override all containers in the the deployment(s)/statefulset(s)
+  ##
+  args:
+    - infinity
+
+## @section Opensearch Dashboards deployment parameters
+
+## Dashboards image version
+## ref: https://hub.docker.com/r/opensearchproject/opensearch-dashboards/tags
+## @param image.registry Dashboard image registry
+## @param image.repository Dashboard image repository
+## @param image.tag Dashboard image tag (immutable tags are recommended)
+## @param image.pullPolicy Dashboard image pull policy
+## @param image.pullSecrets Specify docker-registry secret names as an array
+##
+image:
+  registry: docker.io
+  repository: opensearchproject/opensearch-dashboards
+  tag: 2.6.0
+  ## Specify a imagePullPolicy
+  ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+  ## ref: https://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+  ##
+  pullPolicy: IfNotPresent
+  ## Optionally specify an array of imagePullSecrets.
+  ## Secrets must be manually created in the namespace.
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+  ## Example:
+  ## pullSecrets:
+  ##   - myRegistryKeySecretName
+  ##
+  pullSecrets: []
+## @param replicaCount Number of replicas of the Opensearch Dashboards Pod
+##
+replicaCount: 1
+## @param updateStrategy.type Set up update strategy for Opensearch Dashboards installation.
+## Set to Recreate if you use persistent volume that cannot be mounted by more than one pods to makesure the pods are destroyed first.
+## ref: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
+## Example:
+## updateStrategy:
+##  type: RollingUpdate
+##  rollingUpdate:
+##    maxSurge: 25%
+##    maxUnavailable: 25%
+##
+updateStrategy:
+  type: RollingUpdate
+## @param schedulerName Alternative scheduler
+## ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
+##
+schedulerName: ""
+## @param priorityClassName opensearch-dashboards pods' priorityClassName
+##
+priorityClassName: ""
+## @param terminationGracePeriodSeconds In seconds, time the given to the opensearch-dashboards pod needs to terminate gracefully
+## ref: https://kubernetes.io/docs/concepts/workloads/pods/pod/#termination-of-pods
+##
+terminationGracePeriodSeconds: ""
+## @param topologySpreadConstraints Topology Spread Constraints for pod assignment
+## https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
+## The value is evaluated as a template
+##
+topologySpreadConstraints: []
+## @param hostAliases Add deployment host aliases
+## https://kubernetes.io/docs/concepts/services-networking/add-entries-to-pod-etc-hosts-with-host-aliases/
+##
+hostAliases: []
+## @param plugins Array containing the Opensearch Dashboards plugins to be installed in deployment
+## eg:
+## plugins:
+##   - https://github.com/fbaligand/kibana-enhanced-table/releases/download/v1.5.0/enhanced-table-1.5.0_7.3.2.zip
+##
+plugins: []
+## @param extraConfiguration Extra settings to be added to the default opensearch_dashboards.yml configmap that the chart creates (unless replaced using `configurationCM`). Evaluated as a template
+##
+extraConfiguration: {}
+## @param configurationCM ConfigMap containing a opensearch_dashboards.yml file that will replace the default one specified in configuration.yaml
+##
+configurationCM: ""
+## @param command Override default container command (useful when using custom images)
+##
+command: []
+## @param args Override default container args (useful when using custom images)
+##
+args: []
+## @param lifecycleHooks for the opensearch-dashboards container(s) to automate configuration before or after startup
+##
+lifecycleHooks: {}
+## @param extraEnvVars Array containing extra env vars to configure Opensearch Dashboards
+## For example:
+## extraEnvVars:
+##  - name: DASHBOARDS_OPENSEARCH_URL
+##    value: test
+##
+extraEnvVars: []
+## @param extraEnvVarsCM ConfigMap containing extra env vars to configure Opensearch Dashboards
+##
+extraEnvVarsCM: ""
+## @param extraEnvVarsSecret Secret containing extra env vars to configure Opensearch Dashboards (in case of sensitive data)
+##
+extraEnvVarsSecret: ""
+## @param extraVolumes Array to add extra volumes. Requires setting `extraVolumeMounts`
+##
+extraVolumes: []
+## @param extraVolumeMounts Array to add extra mounts. Normally used with `extraVolumes`
+##
+extraVolumeMounts: []
+## Configure extra options for liveness probe
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#configure-probes)
+## @param livenessProbe.enabled Enable/disable the Liveness probe
+## @param livenessProbe.initialDelaySeconds Delay before liveness probe is initiated
+## @param livenessProbe.periodSeconds How often to perform the probe
+## @param livenessProbe.timeoutSeconds When the probe times out
+## @param livenessProbe.failureThreshold Minimum consecutive failures for the probe to be considered failed after having succeeded.
+## @param livenessProbe.successThreshold Minimum consecutive successes for the probe to be considered successful after having failed.
+##
+livenessProbe:
+  enabled: true
+  initialDelaySeconds: 120
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 6
+  successThreshold: 1
+## Configure extra options for readiness probe
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#configure-probes)
+## @param readinessProbe.enabled Enable/disable the Readiness probe
+## @param readinessProbe.initialDelaySeconds Delay before readiness probe is initiated
+## @param readinessProbe.periodSeconds How often to perform the probe
+## @param readinessProbe.timeoutSeconds When the probe times out
+## @param readinessProbe.failureThreshold Minimum consecutive failures for the probe to be considered failed after having succeeded.
+## @param readinessProbe.successThreshold Minimum consecutive successes for the probe to be considered successful after having failed.
+##
+readinessProbe:
+  enabled: true
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 6
+  successThreshold: 1
+
+## @param containerPorts.http Port to expose at container level
+##
+containerPorts:
+  http: 5601
+## Configure Pods Security Context
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+## @param podSecurityContext.enabled Enabled opensearch-dashboards pods' Security Context
+## @param podSecurityContext.fsGroup Set opensearch-dashboards pod's Security Context fsGroup
+##
+podSecurityContext:
+  enabled: true
+  fsGroup: 1000
+## Configure Container Security Context
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+## @param containerSecurityContext.enabled Enabled opensearch-dashboards containers' Security Context
+## @param containerSecurityContext.runAsUser Set opensearch-dashboards containers' Security Context runAsUser
+## @param containerSecurityContext.runAsNonRoot Set opensearch-dashboards container's Security Context runAsNonRoot
+## @param containerSecurityContext.allowPrivilegeEscalation Controls whether a process can gain more privileges than its parent process
+##
+containerSecurityContext:
+  enabled: true
+  runAsUser: 1000
+  runAsNonRoot: true
+  allowPrivilegeEscalation: false
+
+## Opensearch Dashboards resource requests and limits
+## ref: https://kubernetes.io/docs/user-guide/compute-resources/
+## We usually recommend not to specify default resources and to leave this as a conscious
+## choice for the user. This also increases chances charts run on environments with little
+## resources, such as Minikube. If you do want to specify resources, uncomment the following
+## lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+## @param resources.limits The resources limits for the container
+## @param resources.requests The requested resources for the container
+##
+resources:
+  ## Example:
+  ## limits:
+  ##    cpu: 100m
+  ##    memory: 256Mi
+  limits: {}
+  ## Examples:
+  ## requests:
+  ##    cpu: 100m
+  ##    memory: 256Mi
+  requests: {}
+## @param podAffinityPreset Pod affinity preset. Ignored if `affinity` is set. Allowed values: `soft` or `hard`
+## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+##
+podAffinityPreset: ""
+## @param podAntiAffinityPreset Pod anti-affinity preset. Ignored if `affinity` is set. Allowed values: `soft` or `hard`
+## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+##
+podAntiAffinityPreset: soft
+## Node affinity preset
+## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+## Allowed values: soft, hard
+##
+nodeAffinityPreset:
+  ## @param nodeAffinityPreset.type Node affinity preset type. Ignored if `affinity` is set. Allowed values: `soft` or `hard`
+  ##
+  type: ""
+  ## @param nodeAffinityPreset.key Node label key to match Ignored if `affinity` is set.
+  ## E.g.
+  ## key: "kubernetes.io/e2e-az-name"
+  ##
+  key: ""
+  ## @param nodeAffinityPreset.values Node label values to match. Ignored if `affinity` is set.
+  ## E.g.
+  ## values:
+  ##   - e2e-az1
+  ##   - e2e-az2
+  ##
+  values: []
+## @param affinity Affinity for pod assignment
+## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+## Note: podAffinityPreset, podAntiAffinityPreset, and  nodeAffinityPreset will be ignored when it's set
+##
+affinity: {}
+## @param nodeSelector Node labels for pod assignment
+## Ref: https://kubernetes.io/docs/user-guide/node-selection/
+##
+nodeSelector: {}
+## @param tolerations Tolerations for pod assignment
+## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+##
+tolerations: []
+## @param podAnnotations Pod annotations
+## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+##
+podAnnotations: {}
+## @param podLabels Extra labels to add to Pod
+##
+podLabels: {}
+## @param sidecars Attach additional containers to the pod
+## e.g.
+## - name: your-image-name
+##  image: your-image
+##  imagePullPolicy: Always
+##  ports:
+##  - name: portname
+##    containerPort: 1234
+##
+sidecars: []
+## @param initContainers Add additional init containers to the pod
+## e.g.
+## - name: your-image-name
+##  image: your-image
+##  imagePullPolicy: Always
+##  ports:
+##  - name: portname
+##    containerPort: 1234
+##
+initContainers: []
+## @param configuration [object] Opensearch Dashboards configuration
+##
+configuration:
+  server:
+    basePath: ""
+    rewriteBasePath: false
+
+## @section Opensearch Dashboards openid configuration
+##
+openid:
+  ## @param openid.enabled Enable openid authentication
+  ##
+  enabled: false
+  ## @param openid.connect_url The IdP metadata endpoint
+  ##
+  connect_url: "https://keycloak.example.com:443/auth/realms/master/.well-known/openid-configuration"
+  ## @param openid.client_id The ID of the OpenID Connect client in your IdP
+  ##
+  client_id: ""
+  ## @param openid.client_secret The client secret of the OpenID Connect client
+  ##
+  client_secret: ""
+  ## @param openid.scope OIDC scopes
+  ##
+  scope: "openid profile email"
+
+## @section Opensearch Dashboards server TLS configuration
+##
+tls:
+  ## @param tls.enabled Enable SSL/TLS encryption for Opensearch Dashboards server (HTTPS)
+  ##
+  enabled: false
+  ## @param tls.autoGenerated Create self-signed TLS certificates. Currently only supports PEM certificates.
+  ##
+  autoGenerated: false
+  ## @param tls.existingSecret Name of the existing secret containing Opensearch Dashboards server certificates
+  ##
+  existingSecret: ""
+  ## @param tls.keyPassword Password to access the PEM key when it is password-protected.
+  ##
+  keyPassword: ""
+  ## @param tls.passwordsSecret Name of a existing secret containing the PEM key password
+  ##
+  passwordsSecret: ""
+
+  ## @param tls.extraCACerts Add extra pem CA certs for Dashboards
+  extraCACerts: ""
+    # Values must be YAML literal style scalar / YAML multiline string.
+    # extraCACerts: |
+    #   <pem content>
+    # extraCACerts: |
+    #   -----BEGIN CERTIFICATE-----
+    #   XXXXXXXXXXXXXXXXXXXXXXXXXXX
+    #   -----END CERTIFICATE-----
+
+## @section Opensearch parameters
+##
+opensearch:
+  ## @param opensearch.hosts List of opensearch hosts to connect to.
+  ## e.g:
+  ## hosts:
+  ##   - opensearch-1
+  ##   - opensearch-2
+  ##
+  hosts: []
+  ## @param opensearch.port Opensearch port
+  ##
+  port: ""
+
+  security:
+    auth:
+      ## @param opensearch.security.auth.enabled Set to 'true' if Opensearch has authentication enabled
+      ##
+      enabled: false
+      ## @param opensearch.security.auth.dashboardsUsername Dashboard server user to authenticate with Opensearch
+      ##
+      dashboardsUsername: "dashboards"
+      ## @param opensearch.security.auth.dashboardsPassword Dashboard server password to authenticate with Opensearch
+      ##
+      dashboardsPassword: ""
+      ## @param opensearch.security.auth.existingSecret Name of the existing secret containing the Password for the Dashboard user
+      ##
+      existingSecret: ""
+    tls:
+      ## @param opensearch.security.tls.enabled Set to 'true' if Opensearch API uses TLS/SSL (HTTPS)
+      ##
+      enabled: false
+      ## @param opensearch.security.tls.verificationMode Verification mode for SSL communications.
+      ## Supported values: full, certificate, none.
+      ## Ref: https://opensearch.org/docs/latest/dashboards/install/tls/
+      verificationMode: "full"
+      ## @param opensearch.security.tls.existingSecret Name of the existing secret containing Opensearch CA certificate. Required unless verificationMode=none
+      ##
+      existingSecret: ""
+      ## @param opensearch.security.tls.passwordsSecret Name of a existing secret containing the Truststore password
+      ##
+      passwordsSecret: ""
+
+
+## @section Exposure parameters
+##
+
+## Service configuration
+##
+service:
+  ## @param service.ports.http Kubernetes Service port
+  ##
+  ports:
+    http: 5601
+  ## @param service.type Kubernetes Service type
+  ##
+  type: ClusterIP
+  ## @param service.nodePorts.http Specify the nodePort value for the LoadBalancer and NodePort service types
+  ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport
+  ##
+  nodePorts:
+    http: ""
+  ## @param service.clusterIP opensearch-dashboards service Cluster IP
+  ## e.g.:
+  ## clusterIP: None
+  ##
+  clusterIP: ""
+  ## @param service.loadBalancerIP loadBalancerIP if Opensearch Dashboards service type is `LoadBalancer`
+  ## ref: https://kubernetes.io/docs/user-guide/services/#type-loadbalancer
+  ##
+  loadBalancerIP: ""
+  ## @param service.loadBalancerSourceRanges opensearch-dashboards service Load Balancer sources
+  ## ref: https://kubernetes.io/docs/tasks/access-application-cluster/configure-cloud-provider-firewall/#restrict-access-for-loadbalancer-service
+  ## e.g:
+  ## loadBalancerSourceRanges:
+  ##   - 10.10.10.0/24
+  ##
+  loadBalancerSourceRanges: []
+  ## @param service.externalTrafficPolicy Enable client source IP preservation
+  ## ref https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip
+  ##
+  externalTrafficPolicy: Cluster
+  ## @param service.annotations Annotations for Opensearch Dashboards service (evaluated as a template)
+  ## This can be used to set the LoadBalancer service type to internal only.
+  ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#internal-load-balancer
+  ##
+  annotations: {}
+  ## @param service.labels Extra labels for Opensearch Dashboards service
+  ##
+  labels: {}
+  ## @param service.extraPorts Extra ports to expose in the service (normally used with the `sidecar` value)
+  ##
+  extraPorts: []
+  ## @param service.sessionAffinity Session Affinity for Kubernetes service, can be "None" or "ClientIP"
+  ## If "ClientIP", consecutive client requests will be directed to the same Pod
+  ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
+  ##
+  sessionAffinity: None
+  ## @param service.sessionAffinityConfig Additional settings for the sessionAffinity
+  ## sessionAffinityConfig:
+  ##   clientIP:
+  ##     timeoutSeconds: 300
+  ##
+  sessionAffinityConfig: {}
+  ## @param service.ipFamilyPolicy ipFamilyPolicy for dashboards service
+  ## ref: https://kubernetes.io/docs/concepts/services-networking/dual-stack/#services
+  ##
+  ipFamilyPolicy: PreferDualStack
+
+## Configure the ingress resource that allows you to access the
+## Opensearch Dashboards installation. Set up the URL
+## ref: https://kubernetes.io/docs/user-guide/ingress/
+##
+ingress:
+  ## @param ingress.enabled Enable ingress controller resource
+  ##
+  enabled: false
+  ## @param ingress.pathType Ingress Path type
+  ##
+  pathType: ImplementationSpecific
+  ## @param ingress.apiVersion Override API Version (automatically detected if not set)
+  ##
+  apiVersion: ""
+  ## @param ingress.hostname Default host for the ingress resource. If specified as "*" no host rule is configured
+  ##
+  hostname: opensearch-dashboards.local
+  ## @param ingress.path The Path to Opensearch Dashboards. You may need to set this to '/*' in order to use this with ALB ingress controllers.
+  ##
+  path: /
+  ## @param ingress.annotations Additional annotations for the Ingress resource. To enable certificate autogeneration, place here your cert-manager annotations.
+  ## For a full list of possible ingress annotations, please see
+  ## ref: https://github.com/kubernetes/ingress-nginx/blob/master/docs/user-guide/nginx-configuration/annotations.md
+  ## Use this parameter to set the required annotations for cert-manager, see
+  ## ref: https://cert-manager.io/docs/usage/ingress/#supported-annotations
+  ##
+  ## e.g:
+  ## annotations:
+  ##   kubernetes.io/ingress.class: nginx
+  ##   cert-manager.io/cluster-issuer: cluster-issuer-name
+  ##
+  annotations: {}
+  ## @param ingress.tls Enable TLS configuration for the hostname defined at ingress.hostname parameter
+  ## TLS certificates will be retrieved from a TLS secret with name: {{- printf "%s-tls" .Values.ingress.hostname }}
+  ## You can use the ingress.secrets parameter to create this TLS secret or rely on cert-manager to create it
+  ##
+  tls: false
+  ## @param ingress.selfSigned Create a TLS secret for this ingress record using self-signed certificates generated by Helm
+  ##
+  selfSigned: false
+  ## @param ingress.extraHosts The list of additional hostnames to be covered with this ingress record.
+  ## Most likely the hostname above will be enough, but in the event more hosts are needed, this is an array
+  ## extraHosts:
+  ## - name: opensearch-dashboards.local
+  ##   path: /
+  ##
+  extraHosts: []
+  ## @param ingress.extraPaths Additional arbitrary path/backend objects
+  ## For example: The ALB ingress controller requires a special rule for handling SSL redirection.
+  ## extraPaths:
+  ## - path: /*
+  ##   backend:
+  ##     serviceName: ssl-redirect
+  ##     servicePort: use-annotation
+  ##
+  extraPaths: []
+  ## @param ingress.extraTls The tls configuration for additional hostnames to be covered with this ingress record.
+  ## see: https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
+  ## extraTls:
+  ## - hosts:
+  ##     - opensearch-dashboards.local
+  ##   secretName: opensearch-dashboards.local-tls
+  ##
+  extraTls: []
+  ## @param ingress.secrets If you're providing your own certificates, please use this to add the certificates as secrets
+  ## key and certificate should start with -----BEGIN CERTIFICATE----- or
+  ## -----BEGIN RSA PRIVATE KEY-----
+  ##
+  ## name should line up with a tlsSecret set further up
+  ## If you're using cert-manager, this is unneeded, as it will create the secret for you if it is not set
+  ##
+  ## It is also possible to create and manage the certificates outside of this helm chart
+  ## Please see README.md for more information
+  ## e.g:
+  ## - name: opensearch-dashboards.local-tls
+  ##   key:
+  ##   certificate:
+  ##
+  secrets: []
+  ## @param ingress.ingressClassName IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+)
+  ## This is supported in Kubernetes 1.18+ and required if you have more than one IngressClass marked as the default for your cluster .
+  ## ref: https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/
+  ##
+  ingressClassName: ""
+  ## @param ingress.extraRules The list of additional rules to be added to this ingress record. Evaluated as a template
+  ## Useful when looking for additional customization, such as using different backend
+  ##
+  extraRules: []
+
+## @section RBAC parameters
+
+## Pods Service Account
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
+## @param serviceAccount.create Specifies whether a ServiceAccount should be created
+## @param serviceAccount.name Name of the service account to use. If not set and create is true, a name is generated using the fullname template.
+## @param serviceAccount.automountServiceAccountToken Automount service account token for the server service account
+## @param serviceAccount.annotations Annotations for service account. Evaluated as a template. Only used if `create` is `true`.
+##
+serviceAccount:
+  create: true
+  name: ""
+  automountServiceAccountToken: false
+  annotations: {}
