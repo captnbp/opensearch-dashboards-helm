@@ -2,22 +2,22 @@ annotations:
   category: Analytics
   artifacthub.io/images: |
     - name: opensearch-dashboards
-      image: opensearchproject/opensearch-dashboards:2.9.0
+      image: opensearchproject/opensearch-dashboards:2.10.0
   artifacthub.io/license: MIT
   artifacthub.io/recommendations: |
     - url: https://artifacthub.io/packages/helm/captnbp/opensearch
     - url: https://artifacthub.io/packages/helm/captnbp/opensearch-singlenode
   artifacthub.io/changes: |
     - kind: changed
-      description: Update Opensearch to 2.9.0
+      description: Update Opensearch to 2.10.0
 apiVersion: v2
-appVersion: 2.9.0
+appVersion: 2.10.0
 dependencies:
   - name: common
     repository: https://charts.bitnami.com/bitnami
     tags:
       - bitnami-common
-    version: 1.x.x
+    version: 2.x.x
 description: Opensearch Dashboards is an open source, browser based analytics and search dashboard for Opensearch. Opensearch Dashboards strives to be easy to get started with, while also being flexible and powerful.
 home: https://lab.frogg.it/captnbp/opensearch-dashboards-helm
 icon: https://opensearch.org/assets/brand/PNG/Mark/opensearch_mark_default.png
@@ -38,4 +38,4 @@ sources:
   - https://github.com/captnbp/opensearch-dashboards-helm
   - https://github.com/opensearch-project
   - https://opensearch.org/
-version: 2.1.13
+version: 2.1.14
