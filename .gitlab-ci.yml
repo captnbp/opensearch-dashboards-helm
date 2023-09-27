@@ -23,7 +23,7 @@ stages:
     - helm repo add --username gitlab-ci-token --password ${CI_JOB_TOKEN} gitlab https://${CI_SERVER_HOST}/api/v4/projects/${CI_PROJECT_ID}/packages/helm/${CHART_NAME}
     - helm repo add charts s3://charts/
     - helm cm-push ${CHART} gitlab
-    - helm s3 push ${CHART} charts
+    - helm s3 push --force ${CHART} charts
     - helm registry login registry-1.docker.io --username ${DOCKER_USERNAME} --password "${DOCKER_PASSWORD}"
     - helm push ${CHART} oci://registry-1.docker.io/captnbp/
   tags:
