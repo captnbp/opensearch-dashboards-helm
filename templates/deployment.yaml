@@ -33,7 +33,6 @@ spec:
         {{- end }}
       {{- end }}
       labels: {{- include "common.labels.standard" . | nindent 8 }}
-        app: opensearch-dashboards
         {{- if .Values.podLabels }}
         {{- include "common.tplvalues.render" (dict "value" .Values.podLabels "context" $) | nindent 8 }}
         {{- end }}
