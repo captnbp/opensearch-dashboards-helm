@@ -9,8 +9,7 @@ Opensearch Dashboards is an open source, browser based analytics and search for 
 ## TL;DR
 
 ```console
-$ helm repo add doca https://charts.doca.cloud/charts/
-$ helm install my-release doca/opensearch-dashboards
+$ helm install my-release oci://registry-1.docker.io/captnbp/opensearch-dashboards
 ```
 
 ## Introduction
@@ -29,8 +28,7 @@ This chart requires an Opensearch instance to work. You can use an already exist
  To install the chart with the release name `my-release`:
 
 ```console
-$ helm repo add doca https://charts.doca.cloud/charts/
-$ helm install my-release doca/opensearch-dashboards
+$ helm install my-release oci://registry-1.docker.io/captnbp/opensearch-dashboards
 ```
 
 These commands deploy Opensearch Dashboards on the Kubernetes cluster in the default configuration. The [Parameters](#parameters) section lists the parameters that can be configured during installation.
