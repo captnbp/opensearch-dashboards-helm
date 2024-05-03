@@ -18,8 +18,8 @@ This chart bootstraps a Opensearch Dashboards deployment on a [Kubernetes](https
 
 ## Prerequisites
 
-- Kubernetes 1.19+
-- Helm 3.2.0+
+- Kubernetes 1.26+
+- Helm 3.10.0+
 
 ## Installing the Chart
 
@@ -54,7 +54,6 @@ The command removes all the Kubernetes components associated with the chart and 
 | `global.imageRegistry`    | Global Docker image registry                    | `""`  |
 | `global.imagePullSecrets` | Global Docker registry secret names as an array | `[]`  |
 
-
 ### Common parameters
 
 | Name                     | Description                                                                                               | Value           |
@@ -70,14 +69,13 @@ The command removes all the Kubernetes components associated with the chart and 
 | `diagnosticMode.command` | Command to override all containers in the the deployment(s)/statefulset(s)                                | `["sleep"]`     |
 | `diagnosticMode.args`    | Args to override all containers in the the deployment(s)/statefulset(s)                                   | `["infinity"]`  |
 
-
 ### Opensearch Dashboards deployment parameters
 
 | Name                                                | Description                                                                                                                                                             | Value                                     |
 | --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
 | `image.registry`                                    | Dashboard image registry                                                                                                                                                | `docker.io`                               |
 | `image.repository`                                  | Dashboard image repository                                                                                                                                              | `opensearchproject/opensearch-dashboards` |
-| `image.tag`                                         | Dashboard image tag (immutable tags are recommended)                                                                                                                    | `2.4.0`                                   |
+| `image.tag`                                         | Dashboard image tag (immutable tags are recommended)                                                                                                                    | `2.13.0`                                  |
 | `image.pullPolicy`                                  | Dashboard image pull policy                                                                                                                                             | `IfNotPresent`                            |
 | `image.pullSecrets`                                 | Specify docker-registry secret names as an array                                                                                                                        | `[]`                                      |
 | `replicaCount`                                      | Number of replicas of the Opensearch Dashboards Pod                                                                                                                     | `1`                                       |
@@ -131,8 +129,8 @@ The command removes all the Kubernetes components associated with the chart and 
 | `podLabels`                                         | Extra labels to add to Pod                                                                                                                                              | `{}`                                      |
 | `sidecars`                                          | Attach additional containers to the pod                                                                                                                                 | `[]`                                      |
 | `initContainers`                                    | Add additional init containers to the pod                                                                                                                               | `[]`                                      |
+| `deploymentAnnotations`                             | Annotations for deployment                                                                                                                                              | `{}`                                      |
 | `configuration`                                     | Opensearch Dashboards configuration                                                                                                                                     | `{}`                                      |
-
 
 ### Opensearch Dashboards openid configuration
 
@@ -144,18 +142,18 @@ The command removes all the Kubernetes components associated with the chart and 
 | `openid.client_secret` | The client secret of the OpenID Connect client  | `""`                                                                                   |
 | `openid.scope`         | OIDC scopes                                     | `openid profile email`                                                                 |
 
-
 ### Opensearch Dashboards server TLS configuration
 
-| Name                  | Description                                                                      | Value   |
-| --------------------- | -------------------------------------------------------------------------------- | ------- |
-| `tls.enabled`         | Enable SSL/TLS encryption for Opensearch Dashboards server (HTTPS)               | `false` |
-| `tls.autoGenerated`   | Create self-signed TLS certificates. Currently only supports PEM certificates.   | `false` |
-| `tls.existingSecret`  | Name of the existing secret containing Opensearch Dashboards server certificates | `""`    |
-| `tls.keyPassword`     | Password to access the PEM key when it is password-protected.                    | `""`    |
-| `tls.passwordsSecret` | Name of a existing secret containing the PEM key password                        | `""`    |
-| `tls.extraCACerts`    | Add extra pem CA certs for Dashboards                                            | `""`    |
-
+| Name                               | Description                                                                                                                                                                                                                                                                                                                                                                          | Value             |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------- |
+| `tls.enabled`                      | Enable SSL/TLS encryption for Opensearch Dashboards server (HTTPS)                                                                                                                                                                                                                                                                                                                   | `true`            |
+| `tls.existingSecret`               | Name of the existing secret containing Opensearch Dashboards server certificates                                                                                                                                                                                                                                                                                                     | `""`              |
+| `tls.algorithm`                    | Algorithm of the private key. Allowed values are either RSA,Ed25519 or ECDSA.                                                                                                                                                                                                                                                                                                        | `RSA`             |
+| `tls.size`                         | Size is the key bit size of the corresponding private key for this certificate. If algorithm is set to RSA, valid values are 2048, 4096 or 8192, and will default to 2048 if not specified. If algorithm is set to ECDSA, valid values are 256, 384 or 521, and will default to 256 if not specified. If algorithm is set to Ed25519, Size is ignored. No other values are allowed.  | `2048`            |
+| `tls.issuerRef.existingIssuerName` | Existing name of the cert-manager http issuer. If provided, it won't create a default one.                                                                                                                                                                                                                                                                                           | `""`              |
+| `tls.issuerRef.kind`               | Kind of the cert-manager issuer resource (defaults to "Issuer")                                                                                                                                                                                                                                                                                                                      | `Issuer`          |
+| `tls.issuerRef.group`              | Group of the cert-manager issuer resource (defaults to "cert-manager.io")                                                                                                                                                                                                                                                                                                            | `cert-manager.io` |
+| `tls.extraCACerts`                 | Add extra pem CA certs for Dashboards                                                                                                                                                                                                                                                                                                                                                | `""`              |
 
 ### Opensearch parameters
 
@@ -170,8 +168,6 @@ The command removes all the Kubernetes components associated with the chart and 
 | `opensearch.security.tls.enabled`             | Set to 'true' if Opensearch API uses TLS/SSL (HTTPS)                                                    | `false`      |
 | `opensearch.security.tls.verificationMode`    | Verification mode for SSL communications.                                                               | `full`       |
 | `opensearch.security.tls.existingSecret`      | Name of the existing secret containing Opensearch CA certificate. Required unless verificationMode=none | `""`         |
-| `opensearch.security.tls.passwordsSecret`     | Name of a existing secret containing the Truststore password                                            | `""`         |
-
 
 ### Exposure parameters
 
@@ -190,21 +186,21 @@ The command removes all the Kubernetes components associated with the chart and 
 | `service.sessionAffinity`          | Session Affinity for Kubernetes service, can be "None" or "ClientIP"                                                             | `None`                        |
 | `service.sessionAffinityConfig`    | Additional settings for the sessionAffinity                                                                                      | `{}`                          |
 | `service.ipFamilyPolicy`           | ipFamilyPolicy for dashboards service                                                                                            | `PreferDualStack`             |
-| `ingress.enabled`                  | Enable ingress controller resource                                                                                               | `false`                       |
+| `ingress.enabled`                  | Enable ingress controller resource                                                                                               | `true`                        |
 | `ingress.pathType`                 | Ingress Path type                                                                                                                | `ImplementationSpecific`      |
 | `ingress.apiVersion`               | Override API Version (automatically detected if not set)                                                                         | `""`                          |
 | `ingress.hostname`                 | Default host for the ingress resource. If specified as "*" no host rule is configured                                            | `opensearch-dashboards.local` |
 | `ingress.path`                     | The Path to Opensearch Dashboards. You may need to set this to '/*' in order to use this with ALB ingress controllers.           | `/`                           |
 | `ingress.annotations`              | Additional annotations for the Ingress resource. To enable certificate autogeneration, place here your cert-manager annotations. | `{}`                          |
-| `ingress.tls`                      | Enable TLS configuration for the hostname defined at ingress.hostname parameter                                                  | `false`                       |
+| `ingress.tls`                      | Enable TLS configuration for the hostname defined at ingress.hostname parameter                                                  | `true`                        |
 | `ingress.selfSigned`               | Create a TLS secret for this ingress record using self-signed certificates generated by Helm                                     | `false`                       |
 | `ingress.extraHosts`               | The list of additional hostnames to be covered with this ingress record.                                                         | `[]`                          |
 | `ingress.extraPaths`               | Additional arbitrary path/backend objects                                                                                        | `[]`                          |
 | `ingress.extraTls`                 | The tls configuration for additional hostnames to be covered with this ingress record.                                           | `[]`                          |
 | `ingress.secrets`                  | If you're providing your own certificates, please use this to add the certificates as secrets                                    | `[]`                          |
 | `ingress.ingressClassName`         | IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+)                                                    | `""`                          |
+| `ingress.ingressControllerType`    | ingressControllerType that will be be used to implement the Ingress specific annotations (Ex. nginx or traefik)                  | `nginx`                       |
 | `ingress.extraRules`               | The list of additional rules to be added to this ingress record. Evaluated as a template                                         | `[]`                          |
-
 
 ### RBAC parameters
 
@@ -303,7 +299,7 @@ Find more information about how to deal with common errors related to Bitnami's 
 
 MIT License
 
-Copyright (c) 2022 Benoît Pourre
+Copyright (c) 2024 Benoît Pourre
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

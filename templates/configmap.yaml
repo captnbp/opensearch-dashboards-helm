@@ -1,9 +1,14 @@
-{{- if and (not .Values.configurationCM) (and .Values.opensearch.hosts .Values.opensearch.port) }}
+{{- if not .Values.configurationCM }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ include "common.names.fullname" . }}-conf
-  labels: {{- include "common.labels.standard" . | nindent 4 }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+  labels: {{- include "common.labels.standard" ( dict "customLabels" .Values.commonLabels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/component: opensearch-dashboards
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
 data:
   opensearch_dashboards.yml: |
     server.host: "::"
@@ -13,13 +18,10 @@ data:
     {{- if .Values.tls.enabled }}
     # Set to true for HTTPS, false for HTTP.
     server.ssl.enabled: true
-    server.ssl.supportedProtocols: ["TLSv1.2"]
+    server.ssl.supportedProtocols: ["TLSv1.3"]
     server.ssl.certificate: /usr/share/opensearch-dashboards/config/server-certs/tls.crt
     server.ssl.key: /usr/share/opensearch-dashboards/config/server-certs/tls.key
     #server.ssl.certificateAuthorities: []
-    {{- if .Values.tls.keyPassword }}
-    server.ssl.keyPassphrase: ${KEY_PASSPHRASE}
-    {{- end }}
     {{- else }}
     server.ssl.enabled: false
     {{- end }}
@@ -46,7 +48,6 @@ data:
     {{- end }}
 
     # Whitelist basic headers and multi-tenancy header
-    #opensearch.requestHeadersWhitelist: ["Authorization", "security_tenant"]
     opensearch.requestHeadersWhitelist: [ authorization,securitytenant ]
 
     opensearch_security.multitenancy.enabled: true

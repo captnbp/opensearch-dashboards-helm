@@ -1,0 +1,51 @@
+{{- if (include "opensearch-dashboards.createTlsSecret" .) }}
+{{- if not .Values.tls.issuerRef.existingIssuerName }}
+
+{{- end }}
+{{- $releaseNamespace := .Release.Namespace }}
+{{- $clusterDomain := .Values.clusterDomain }}
+{{- $serviceName := include "common.names.fullname" . }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "common.names.fullname" . }}-http-crt
+  namespace: {{ include "common.names.namespace" . | quote }}
+  labels: {{- include "common.labels.standard" . | nindent 4 }}
+    app.kubernetes.io/component: opensearch
+    {{- if .Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  secretTemplate:
+    labels: {{- include "common.labels.matchLabels" . | nindent 6 }}
+      app.kubernetes.io/component: http
+      {{- if .Values.commonLabels }}
+      {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 6 }}
+      {{- end }}
+    {{- if .Values.commonAnnotations }}
+    annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 6 }}
+    {{- end }}
+  secretName: {{ include "common.names.fullname" . }}-crt
+  duration: 4320h # 180d
+  renewBefore: 2160h # 90d
+  dnsNames:
+    - "{{ printf "%s.%s.svc.%s" $serviceName $releaseNamespace $clusterDomain }}"
+    - {{ $serviceName }}
+    - "localhost"
+  ipAddresses:
+    - "127.0.0.1"
+    - "::1"
+  usages:
+    - server auth
+  privateKey:
+    algorithm: {{ .Values.tls.algorithm }}
+    encoding: PKCS8
+    size: {{ .Values.tls.size }}
+  issuerRef:
+    name: {{ include "opensearch-dashboards.issuerName" . }}
+    kind: {{ .Values.tls.issuerRef.kind }}
+    group: {{ .Values.tls.issuerRef.group }}
+{{- end }}
